@@ -11,6 +11,7 @@ extern "C" {
 
 #define DHTPIN 2     // Data pin for DHT
 #define DHTTYPE DHT22   // DHT 22 (AM2302)
+#define SEND_INTERVAL 60
 
 DHT dht(DHTPIN, DHTTYPE);
 
@@ -95,7 +96,7 @@ void setup() {
 void loop() {
   pubSubCheckConnect();
 
-  if (millis() - lastPublish > 10 * 1000) {
+  if (millis() - lastPublish > SEND_INTERVAL * 1000) {
     float h = dht.readHumidity();
     float t = dht.readTemperature();
     
@@ -106,6 +107,8 @@ void loop() {
     }
 
     StaticJsonDocument<200> doc;
+    doc["station_id"] = STATION_ID;
+    doc["timestamp"] = time(nullptr);
     doc["humidity"] = h;
     doc["temperature"] = t;
     char jsonBuffer[512];
